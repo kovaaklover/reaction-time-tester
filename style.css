@@ -1,0 +1,52 @@
+/* Full-screen body and centering */
+body {
+  display: flex;
+  flex-direction: column;     /* stack elements vertically */
+  justify-content: center;    /* vertical centering */
+  align-items: center;        /* horizontal centering */
+  height: 100vh;              /* full window height */
+  margin: 0;                  /* remove default spacing */
+  font-family: Arial, sans-serif;
+  background-color: #c4c1c1;  /* optional background */
+}
+
+/* Top buttons container */
+#buttonContainer {
+  display: flex;
+  justify-content: space-between;   /* left = start, right = CSV */
+  width: 50%;                       /* container width */
+  margin-bottom: 5vh;
+}
+
+/* Buttons styling */
+#startBtn, #csvBtn {
+  font-size: 2.5vw;          /* scales with screen width */
+  padding: 1.5vh 3vw;        /* vertical/horizontal padding */
+  border: 2px solid #000;   /* 3px thick black border */
+  cursor: pointer;
+}
+
+#instructions {
+  width: 80%;               /* box width */
+  margin-top: 5vh;   /* 2% of screen height */
+  padding: 15px 20px;       /* inside spacing */
+  background-color: transparent;
+  font-size: 1.8vw;         /* scales with screen width */
+  text-align: center;       /* center text */
+}
+
+/* Stimulus button styling */
+#stimulus {
+  width: 50vw;               /* proportional width */
+  height: 30vh;              /* proportional height for rectangle */
+  background-color: red;
+  border: 5px solid #000;    /* solid border */
+  cursor: pointer;
+}
+
+/* Result text */
+#result {
+  margin-top: 10vh;   /* 2% of screen height */
+  font-size: 2vw;
+  font-weight: bold;
+}

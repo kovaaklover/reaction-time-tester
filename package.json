@@ -1,0 +1,13 @@
+{
+  "name": "reaction-test",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron ."
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "typescript": "^5.3.3"
+  }
+}
