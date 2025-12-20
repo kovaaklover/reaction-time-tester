@@ -1,13 +1,32 @@
 {
-  "name": "reaction-test",
+  "name": "reaction-time-tester",
   "version": "1.0.0",
+  "description": "A simple reaction time test app",
   "main": "main.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && electron ."
+    "start": "npm run build && electron .",
+    "dist": "npm run build && electron-builder"
   },
   "devDependencies": {
     "electron": "^30.0.0",
+    "electron-builder": "^26.0.12",
     "typescript": "^5.3.3"
+  },
+  "build": {
+    "appId": "com.yourname.reactiontimetester",
+    "productName": "Reaction Time Tester",
+    "files": [
+      "dist/**/*",
+      "index.html",
+      "style.css",
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
   }
 }
