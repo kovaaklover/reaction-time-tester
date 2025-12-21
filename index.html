@@ -4,18 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reaction Time Tester</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles/global.css" />
 </head>
 <body>
   <!-- Fixed Top Bar -->
   <div id="topBar">
-    <!-- Left: App Title + Version -->
     <div id="appTitle">
       <div class="title-text">Reaction Time Tester</div>
-      <div class="version-badge">v3.0.0</div>
+      <div class="version-badge">v3.0</div>
     </div>
 
-    <!-- Centered Navigation Buttons -->
     <div id="navButtons">
       <button data-view="freeplay-visual" class="active">Freeplay – Visual</button>
       <button data-view="trainer-visual">Trainer – Visual</button>
@@ -25,11 +23,9 @@
     </div>
   </div>
 
-  <!-- Main content area (everything below the top bar) -->
-  <div id="viewContainer">
-    <!-- Content will be injected here by render.ts -->
-  </div>
+  <!-- Main content area -->
+  <div id="viewContainer"></div>
 
-  <script src="dist/renderer.js"></script>
+  <script type="module" src="dist/app.js"></script>
 </body>
 </html>

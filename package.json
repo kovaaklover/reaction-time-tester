@@ -1,6 +1,6 @@
 {
   "name": "reaction-time-tester",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A simple reaction time test app",
   "main": "main.js",
   "scripts": {
@@ -19,10 +19,13 @@
     "files": [
       "dist/**/*",
       "index.html",
-      "style.css",
       "main.js",
+      "styles/**/*",
       "package.json"
     ],
+    "directories": {
+      "buildResources": "."
+    },
     "win": {
       "target": [
         "nsis"
