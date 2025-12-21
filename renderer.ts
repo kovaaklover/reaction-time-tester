@@ -1,44 +1,48 @@
-let startTime: number = 0;
-let results: number[] = [];
-let readyToClick: boolean = false;
-
+const canvas = document.getElementById("stimulus") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d", { desynchronized: true, alpha: false })!;
 const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
-const stimulus = document.getElementById("stimulus") as HTMLDivElement;
-const resultText = document.getElementById("result") as HTMLParagraphElement;
 const csvBtn = document.getElementById("csvBtn") as HTMLButtonElement;
+const resultText = document.getElementById("result") as HTMLParagraphElement;
 
-const totalTrials = 5;   // number of trials
+const totalTrials = 5;
 let currentTrial = 0;
+let results: number[] = [];
+let readyToClick = false;
+let startTime = 0;
 
-// Start the test
-startBtn.onclick = () => {
-  results = [];
-  currentTrial = 0;
-  resultText.textContent = "Get ready...";
-  runNextTrial();
-};
+// --- Set canvas properties for minimal overhead ---
+canvas.style.userSelect = "none";
+canvas.style.touchAction = "none";
 
-// Function to run a single trial
+// --- Fill canvas immediately ---
+function setColor(color: string) {
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// --- Start a new trial ---
 function runNextTrial() {
   if (currentTrial >= totalTrials) {
     resultText.textContent = `Test complete! Results: ${results.map(r => r.toFixed(1)).join(", ")} ms`;
     return;
   }
 
+  // Show "ready" color
+  setColor("red");
   readyToClick = false;
-  stimulus.style.backgroundColor = "red"; // reset to red
 
-  const delay = Math.random() * 2000 + 1000; // 1–3s random delay
+  const delay = 1000 + Math.random() * 2000; // 1–3s random
 
+  // Use setTimeout instead of requestAnimationFrame to reduce jitter
   setTimeout(() => {
-    stimulus.style.backgroundColor = "blue"; // go signal
+    setColor("blue");
     startTime = performance.now();
     readyToClick = true;
   }, delay);
 }
 
-// Handle click
-stimulus.onclick = () => {
+// --- Handle clicks ---
+canvas.addEventListener("pointerdown", () => {
   if (!readyToClick) {
     resultText.textContent = "Too early! Wait for blue.";
     return;
@@ -51,16 +55,22 @@ stimulus.onclick = () => {
 
   resultText.textContent = `Trial ${currentTrial}: ${rt.toFixed(1)} ms`;
 
-  // After a short pause, run next trial
-  setTimeout(runNextTrial, 500); // 0.5s pause between trials
+  // Short pause before next trial
+  setTimeout(runNextTrial, 300); // 0.1s for snappy pacing
+});
+
+// --- Start button ---
+startBtn.onclick = () => {
+  results = [];
+  currentTrial = 0;
+  resultText.textContent = "Get ready...";
+  runNextTrial();
 };
 
-// CSV export
+// --- CSV download ---
 csvBtn.onclick = () => {
   let csv = "trial,reaction_time_ms\n";
-  results.forEach((rt, i) => {
-    csv += `${i + 1},${rt.toFixed(2)}\n`;
-  });
+  results.forEach((r, i) => (csv += `${i + 1},${r.toFixed(2)}\n`));
 
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
