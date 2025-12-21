@@ -1,26 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Reaction Time Test</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaction Time Tester</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Top bar with buttons -->
-  <div id="buttonContainer">
-    <button id="startBtn">Start Test</button>
-    <button id="csvBtn">Download CSV</button>
+  <!-- Fixed Top Bar -->
+  <div id="topBar">
+    <!-- Left: App Title + Version -->
+    <div id="appTitle">
+      <div class="title-text">Reaction Time Tester</div>
+      <div class="version-badge">v3.0.0</div>
+    </div>
+
+    <!-- Centered Navigation Buttons -->
+    <div id="navButtons">
+      <button data-view="freeplay-visual" class="active">Freeplay – Visual</button>
+      <button data-view="trainer-visual">Trainer – Visual</button>
+      <button data-view="tester-visual">Tester – Visual</button>
+      <button data-view="freeplay-sound">Freeplay – Sound</button>
+      <button data-view="stats">Stats</button>
+    </div>
   </div>
 
-  <!-- Instructions -->
-  <div id="instructions">
-    Click the red button when it turns blue as fast as possible!
+  <!-- Main content area (everything below the top bar) -->
+  <div id="viewContainer">
+    <!-- Content will be injected here by render.ts -->
   </div>
-
-  <!-- Stimulus button -->
-  <canvas id="stimulus"></canvas>
-
-  <!-- Result display -->
-  <p id="result"></p>
 
   <script src="dist/renderer.js"></script>
 </body>
