@@ -32,7 +32,7 @@ function loadView(view: string) {
       renderFreeplaySound(viewContainer, sessionHistory);
       break;
     case 'tester-visual':
-      renderTesterVisual(viewContainer);
+      renderTesterVisual(viewContainer, sessionHistory);
       break;
     case 'stats':
       renderStats(viewContainer, sessionHistory);

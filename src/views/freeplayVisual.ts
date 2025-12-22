@@ -24,6 +24,11 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
           <option value="red">Red</option>
           <option value="yellow">Yellow</option>
           <option value="white">White</option>
+          <option value="orange">Orange</option>
+          <option value="purple">Purple</option>
+          <option value="brown">Brown</option>
+          <option value="black">Black</option>
+          <option value="grey">Grey</option>
         </select>
 
         <label>Stimulus Color</label>
@@ -33,6 +38,11 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
           <option value="red">Red</option>
           <option value="yellow">Yellow</option>
           <option value="white">White</option>
+          <option value="orange">Orange</option>
+          <option value="purple">Purple</option>
+          <option value="brown">Brown</option>
+          <option value="black">Black</option>
+          <option value="grey">Grey</option>
         </select>
 
         <label>Number of Trials</label>
@@ -212,20 +222,24 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
   function addHistoryEntry(entry: HistoryEntry) {
     const historyContent = document.getElementById('historyContent')!;
     const div = document.createElement('div');
-    div.style.marginBottom = '10px';
+    div.style.marginBottom = '16px';
+    div.style.padding = '12px';
+    div.style.background = 'rgba(255,255,255,0.05)';
+    div.style.borderRadius = '8px';
+
     const avg = entry.results.reduce((a, b) => a + b, 0) / entry.results.length || 0;
 
     div.innerHTML = `
-      <strong>${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)} Test at ${entry.timestamp}</strong><br>
+      <strong>${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</strong><br>
+      ${entry.timestamp}<br>
       Initial: ${entry.initialColor}, Stimulus: ${entry.stimulusColor}<br>
-      Trials: ${entry.trials}, Delays: ${entry.minDelay}s–${entry.maxDelay}s<br>
+      Trials: ${entry.trials} | Delays: ${entry.minDelay}s – ${entry.maxDelay}s<br>
       Results (ms): ${entry.results.map(r => r.toFixed(1)).join(', ')}<br>
-      Average: ${avg.toFixed(1)} ms
+      <strong>Average: ${avg.toFixed(1)} ms</strong>
     `;
 
     const hr = document.createElement('hr');
-    hr.style.border = '1px solid #555';
-    hr.style.margin = '8px 0';
+    hr.style.borderColor = '#444';
 
     historyContent.insertBefore(div, historyContent.firstChild);
     historyContent.insertBefore(hr, div);

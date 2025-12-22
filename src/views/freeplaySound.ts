@@ -3,6 +3,7 @@
 interface HistoryEntry {
   timestamp: string;
   type: 'Freeplay Sound';
+  frequency: number;
   trials: number;
   minDelay: number;
   maxDelay: number;
@@ -15,6 +16,15 @@ export function renderFreeplaySound(container: HTMLElement, sessionHistory: Hist
     <div id="freeplayLayout">
       <div id="settingsPanel">
         <h3>Settings</h3>
+
+        <label>Frequency (Hz)</label>
+        <select id="freqSelect">
+          <option value="440">440</option>
+          <option value="880" selected>880</option>
+          <option value="1760">1760</option>
+          <option value="3520">3520</option>
+        </select>
+
         <label>Number of Trials</label>
         <select id="trialsSelect">
           <option value="3">3</option>
@@ -42,7 +52,7 @@ export function renderFreeplaySound(container: HTMLElement, sessionHistory: Hist
 
       <div id="mainPanel">
         <h3 id="mainTitle">
-          Main: Click the black box as fast as possible when you hear the <strong>beep</strong>!
+          Main: Click the white box as fast as possible when you hear the <strong>beep</strong>!
         </h3>
 
         <div id="buttonContainer">
@@ -77,9 +87,13 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
   const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
   const stopBtn = document.getElementById('stopBtn') as HTMLButtonElement;
   const resultText = document.getElementById('result') as HTMLParagraphElement;
+  const freqSelect = document.getElementById('freqSelect') as HTMLSelectElement;
   const trialsSelect = document.getElementById('trialsSelect') as HTMLSelectElement;
   const minDelaySelect = document.getElementById('minDelaySelect') as HTMLSelectElement;
   const maxDelaySelect = document.getElementById('maxDelaySelect') as HTMLSelectElement;
+
+  // If frequency is changed
+  freqSelect.addEventListener('change', () => playBeep());
 
   let currentTrial = 0;
   let results: number[] = [];
@@ -88,11 +102,8 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
   let audioContext: AudioContext | null = null;
 
   // Canvas color handling
-  function setColor(color: string) {
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Start button
   startBtn.onclick = () => {
@@ -127,7 +138,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     gainNode.connect(audioContext.destination);
 
     oscillator.type = 'square';
-    oscillator.frequency.value = 1000; // High beep
+    oscillator.frequency.value = parseInt(freqSelect.value); // High beep
     gainNode.gain.value = 0.3; // Not too loud
 
     oscillator.start();
@@ -136,12 +147,18 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
 
   // Core trial logic
   function runNextTrial() {
+
+    // Clear canvas to white
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     const totalTrials = parseInt(trialsSelect.value);
 
     if (currentTrial >= totalTrials) {
       const entry: HistoryEntry = {
         timestamp: new Date().toLocaleString(),
         type: 'Freeplay Sound',
+        frequency: parseInt(freqSelect.value),
         trials: totalTrials,
         minDelay: parseFloat(minDelaySelect.value),
         maxDelay: parseFloat(maxDelaySelect.value),
@@ -181,6 +198,10 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     results.push(rt);
     resultText.textContent = `Trial ${currentTrial}: ${rt.toFixed(1)} ms`;
 
+    // Canvas color handling to show a click
+    ctx.fillStyle = '#36373C';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     setTimeout(runNextTrial, 300);
   });
 
@@ -188,19 +209,24 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
   function addHistoryEntry(entry: HistoryEntry) {
     const historyContent = document.getElementById('historyContent')!;
     const div = document.createElement('div');
-    div.style.marginBottom = '10px';
+    div.style.marginBottom = '16px';
+    div.style.padding = '12px';
+    div.style.background = 'rgba(255,255,255,0.05)';
+    div.style.borderRadius = '8px';
+
     const avg = entry.results.reduce((a, b) => a + b, 0) / entry.results.length || 0;
 
     div.innerHTML = `
-      <strong>${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)} Test at ${entry.timestamp}</strong><br>
-      Trials: ${entry.trials}, Delays: ${entry.minDelay}s–${entry.maxDelay}s<br>
+      <strong>${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</strong><br> 
+      ${entry.timestamp}<br>
+      Frequency: ${entry.frequency} Hz<br>
+      Trials: ${entry.trials} | Delays: ${entry.minDelay}s – ${entry.maxDelay}s<br>
       Results (ms): ${entry.results.map(r => r.toFixed(1)).join(', ')}<br>
-      Average: ${avg.toFixed(1)} ms
+      <strong>Average: ${avg.toFixed(1)} ms</strong>
     `;
 
     const hr = document.createElement('hr');
-    hr.style.border = '1px solid #555';
-    hr.style.margin = '8px 0';
+    hr.style.borderColor = '#444';
 
     historyContent.insertBefore(div, historyContent.firstChild);
     historyContent.insertBefore(hr, div);

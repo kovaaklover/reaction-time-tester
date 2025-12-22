@@ -2,7 +2,7 @@
 
 interface HistoryEntry {
   timestamp: string;
-  type: 'visual' | 'sound';
+  type: string;  // ← Change to just string — accepts anything!
   initialColor?: string | null;
   stimulusColor?: string | null;
   trials: number;
@@ -14,7 +14,7 @@ interface HistoryEntry {
 export function renderStats(container: HTMLElement, sessionHistory: HistoryEntry[]) {
   container.innerHTML = `
     <div id="statsContainer">
-      <h2>Reaction Time Stats & History</h2>
+      <h2>Reaction Time Stats & History (IN WORK)</h2>
 
       <div id="statsContentWrapper">
         <div id="statsSummary">
@@ -86,7 +86,17 @@ function setupStats(container: HTMLElement, sessionHistory: HistoryEntry[]) {
       : '0.0';
     const resultsList = entry.results.map(r => r.toFixed(1)).join(', ');
 
-    const testType = entry.type === 'visual' ? 'Visual' : 'Sound';
+    let testType = entry.type || 'Test';
+
+    // Automatically format any string nicely (handles 'Freeplay Visual', 'Tester Visual', 'Freeplay Sound', etc.)
+    testType = testType
+      .replace(/([A-Z])/g, ' $1')                    // Add space before capital letters
+      .replace(/_/g, ' ')                           // Replace underscores with spaces
+      .trim()
+      .replace(/\w\S*/g, (txt) =>                  // Capitalize each word
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      );
+
     const visualDetails = entry.initialColor && entry.stimulusColor
       ? `<br>Initial: <span style="color:${entry.initialColor};">■ ${entry.initialColor}</span> → 
          Stimulus: <span style="color:${entry.stimulusColor};">■ ${entry.stimulusColor}</span>`
@@ -114,7 +124,7 @@ function setupStats(container: HTMLElement, sessionHistory: HistoryEntry[]) {
 
   // === EXPORT TO CSV ===
   exportBtn.onclick = () => {
-    let csv = "type,timestamp,initial_color,stimulus_color,trials,min_delay,max_delay,results_ms,average_ms\n";
+    let csv = "type,date,time,initial_color,stimulus_color,trials,min_delay,max_delay,results_ms,average_ms\n";
 
     sessionHistory.forEach(entry => {
       const resultsStr = entry.results.map(r => r.toFixed(1)).join("|");

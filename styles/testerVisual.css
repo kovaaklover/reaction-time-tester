@@ -42,7 +42,7 @@
 
 #settingsPanel label {
   font-size: var(--font-size-button);
-  margin-bottom: 6px;
+  margin-bottom: 12px;
   display: block;
 }
 
@@ -106,7 +106,6 @@
   cursor: pointer;
   box-sizing: border-box;
   transition: none !important;  /* prevent fade/animations */
-  background: white;
 }
 
 #mainPanel #result {
@@ -114,7 +113,6 @@
   font-weight: bold;
   text-align: center;
   margin: 0;
-  color: var(--text-color);
 }
 
 /* ===== CUSTOM SCROLLBARS – WebKit (Chrome, Edge, Safari) ===== */
