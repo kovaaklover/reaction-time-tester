@@ -1,5 +1,17 @@
-import type { HistoryEntry } from '../types.js';
+// No import needed anymore!
 
+interface HistoryEntry {
+  timestamp: string;
+  type: 'Freeplay Visual';
+  initialColor: string;
+  stimulusColor: string;
+  trials: number;
+  minDelay: number;
+  maxDelay: number;
+  results: number[];
+}
+
+// This function builds the “Freeplay – Visual” screen and sets up the test
 export function renderFreeplayVisual(container: HTMLElement, sessionHistory: HistoryEntry[]) {
   container.innerHTML = `
     <div id="freeplayLayout">
@@ -26,7 +38,7 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
         <label>Number of Trials</label>
         <select id="trialsSelect">
           <option value="3">3</option>
-          <option value="5">5</option>
+          <option value="5" selected>5</option>
           <option value="10">10</option>
           <option value="15">15</option>
         </select>
@@ -34,7 +46,7 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
         <label>Min Delay (seconds)</label>
         <select id="minDelaySelect">
           <option value="0.5">0.5</option>
-          <option value="1">1</option>
+          <option value="1" selected>1</option>
           <option value="1.5">1.5</option>
           <option value="2">2</option>
         </select>
@@ -42,7 +54,7 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
         <label>Max Delay (seconds)</label>
         <select id="maxDelaySelect">
           <option value="2">2</option>
-          <option value="3">3</option>
+          <option value="3" selected>3</option>
           <option value="4">4</option>
           <option value="5">5</option>
         </select>
@@ -57,7 +69,6 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
         <div id="buttonContainer">
           <button id="startBtn">Start Test</button>
           <button id="stopBtn">Stop Test</button>
-          <button id="csvBtn">Download CSV</button>
         </div>
 
         <canvas id="stimulus"></canvas>
@@ -65,34 +76,34 @@ export function renderFreeplayVisual(container: HTMLElement, sessionHistory: His
       </div>
 
       <div id="historyPanel">
-        <h3>History</h3>
+        <h3>Recent History</h3>
         <div id="historyContent"></div>
       </div>
     </div>
   `;
 
-  // Load view-specific CSS
+  // Load CSS
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = 'styles/freeplayVisual.css';
   document.head.appendChild(link);
 
-  // Set default values
-  (document.getElementById('colorSelect1') as HTMLSelectElement).value = 'blue';
-  (document.getElementById('colorSelect2') as HTMLSelectElement).value = 'red';
-  (document.getElementById('trialsSelect') as HTMLSelectElement).value = '5';
-  (document.getElementById('minDelaySelect') as HTMLSelectElement).value = '1';
-  (document.getElementById('maxDelaySelect') as HTMLSelectElement).value = '3';
+  // Set defaults (I also added 'selected' in HTML for clarity)
+  const initialColorSelect = document.getElementById('colorSelect1') as HTMLSelectElement;
+  initialColorSelect.value = 'blue';
+
+  const stimulusColorSelect = document.getElementById('colorSelect2') as HTMLSelectElement;
+  stimulusColorSelect.value = 'red';
 
   setupReactionTest(sessionHistory);
 }
 
+// All the reaction test logic — now in the same file, no imports needed
 function setupReactionTest(sessionHistory: HistoryEntry[]) {
   const canvas = document.getElementById('stimulus') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d', { alpha: false })!;
   const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
   const stopBtn = document.getElementById('stopBtn') as HTMLButtonElement;
-  const csvBtn = document.getElementById('csvBtn') as HTMLButtonElement;
   const resultText = document.getElementById('result') as HTMLParagraphElement;
   const initialColorSelect = document.getElementById('colorSelect1') as HTMLSelectElement;
   const stimulusColorSelect = document.getElementById('colorSelect2') as HTMLSelectElement;
@@ -101,10 +112,20 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
   const maxDelaySelect = document.getElementById('maxDelaySelect') as HTMLSelectElement;
   const targetColorText = document.getElementById('targetColorText') as HTMLSpanElement;
 
-  // Update canvas on initial color change
+  let currentTrial = 0;
+  let results: number[] = [];
+  let readyToClick = false;
+  let startTime = 0;
+
+  // Canvas color handling
+  function setColor(color: string) {
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  setColor(initialColorSelect.value);
   initialColorSelect.addEventListener('change', () => setColor(initialColorSelect.value));
 
-  // Update instructions
+  // Instructions update
   function updateInstructions() {
     const colorName = stimulusColorSelect.options[stimulusColorSelect.selectedIndex].text;
     targetColorText.textContent = colorName.toLowerCase();
@@ -113,82 +134,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
   updateInstructions();
   stimulusColorSelect.addEventListener('change', updateInstructions);
 
-  // Responsive canvas
-// Responsive canvas
-  function resizeCanvas() {
-    const parent = canvas.parentElement!;
-    const maxWidth = Math.min(parent.clientWidth * 0.9, 700);
-    const maxHeight = Math.min(parent.clientHeight * 0.7, 500);
-    canvas.width = maxWidth;
-    canvas.height = maxHeight;
-    setColor(initialColorSelect.value);
-  }
-
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  canvas.style.userSelect = 'none';
-  canvas.style.touchAction = 'none';
-
-  let currentTrial = 0;
-  let results: number[] = [];
-  let readyToClick = false;
-  let startTime = 0;
-
-  function setColor(color: string) {
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function runNextTrial() {
-    const totalTrials = parseInt(trialsSelect.value);
-    if (currentTrial >= totalTrials) {
-      const entry: HistoryEntry = {
-        timestamp: new Date().toLocaleTimeString(),
-        initialColor: initialColorSelect.value,
-        stimulusColor: stimulusColorSelect.value,
-        trials: totalTrials,
-        minDelay: parseFloat(minDelaySelect.value),
-        maxDelay: parseFloat(maxDelaySelect.value),
-        results: [...results]
-      };
-      sessionHistory.push(entry);
-      addHistoryEntry(entry);
-      resultText.textContent = 'Test complete!';
-      startBtn.classList.remove('active');
-      return;
-    }
-
-    setColor(initialColorSelect.value);
-    readyToClick = false;
-    resultText.textContent = `Trial ${currentTrial + 1}/${totalTrials}`;
-
-    const minDelay = parseFloat(minDelaySelect.value) * 1000;
-    const maxDelay = parseFloat(maxDelaySelect.value) * 1000;
-    const delay = minDelay + Math.random() * (maxDelay - minDelay);
-
-    setTimeout(() => {
-      setColor(stimulusColorSelect.value);
-      startTime = performance.now();
-      readyToClick = true;
-    }, delay);
-  }
-
-  canvas.addEventListener('pointerdown', () => {
-    if (!readyToClick) {
-      resultText.textContent = `Too early! Wait for ${stimulusColorSelect.options[stimulusColorSelect.selectedIndex].text.toLowerCase()}.`;
-      return;
-    }
-
-    const rt = performance.now() - startTime;
-    results.push(rt);
-    readyToClick = false;
-    currentTrial++;
-    resultText.textContent = `Trial ${currentTrial}: ${rt.toFixed(1)} ms`;
-
-    setTimeout(runNextTrial, 300);
-  });
-
+  // Start button
   startBtn.onclick = () => {
     startBtn.classList.add('active');
     stopBtn.classList.remove('active');
@@ -198,6 +144,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     runNextTrial();
   };
 
+  // Stop button
   stopBtn.onclick = () => {
     stopBtn.classList.add('active');
     startBtn.classList.remove('active');
@@ -208,32 +155,68 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     setColor(initialColorSelect.value);
   };
 
-  csvBtn.onclick = () => {
-    if (sessionHistory.length === 0) return;
+  // Core trial logic
+  function runNextTrial() {
+    const totalTrials = parseInt(trialsSelect.value);
 
-    let csv = "timestamp,initial_color,stimulus_color,trials,min_delay,max_delay,results_ms,average_ms\n";
-    sessionHistory.forEach(entry => {
-      const resultsStr = entry.results.map(r => r.toFixed(1)).join("|");
-      const avg = entry.results.reduce((a, b) => a + b, 0) / entry.results.length;
-      csv += `${entry.timestamp},${entry.initialColor},${entry.stimulusColor},${entry.trials},${entry.minDelay},${entry.maxDelay},${resultsStr},${avg.toFixed(1)}\n`;
-    });
+    if (currentTrial >= totalTrials) {
+      const entry: HistoryEntry = {
+        timestamp: new Date().toLocaleString(),
+        type: 'Freeplay Visual',
+        initialColor: initialColorSelect.value,
+        stimulusColor: stimulusColorSelect.value,
+        trials: totalTrials,
+        minDelay: parseFloat(minDelaySelect.value),
+        maxDelay: parseFloat(maxDelaySelect.value),
+        results: [...results]
+      };
+      sessionHistory.push(entry);
+      localStorage.setItem('reactionTestHistory', JSON.stringify(sessionHistory));
+      addHistoryEntry(entry);
+      resultText.textContent = 'Test complete!';
+      startBtn.classList.remove('active');
+      return;
+    }
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'reaction_times_history.csv';
-    a.click();
-  };
+    currentTrial++;
+    setColor(initialColorSelect.value);
+    readyToClick = false;
+    resultText.textContent = `Trial ${currentTrial}/${totalTrials}`;
 
+    const minDelay = parseFloat(minDelaySelect.value) * 1000;
+    const maxDelay = parseFloat(maxDelaySelect.value) * 1000;
+    const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+
+    setTimeout(() => {
+      setColor(stimulusColorSelect.value);
+      startTime = performance.now();
+      readyToClick = true;
+    }, delay);
+  }
+
+  // Click handler
+  canvas.addEventListener('pointerdown', () => {
+    if (!readyToClick) {
+      resultText.textContent = `Too early! Wait for ${stimulusColorSelect.options[stimulusColorSelect.selectedIndex].text.toLowerCase()}.`;
+      return;
+    }
+
+    const rt = performance.now() - startTime;
+    results.push(rt);
+    resultText.textContent = `Trial ${currentTrial}: ${rt.toFixed(1)} ms`;
+
+    setTimeout(runNextTrial, 300);
+  });
+
+  // History display
   function addHistoryEntry(entry: HistoryEntry) {
     const historyContent = document.getElementById('historyContent')!;
     const div = document.createElement('div');
     div.style.marginBottom = '10px';
-    const avg = entry.results.reduce((a, b) => a + b, 0) / entry.results.length;
+    const avg = entry.results.reduce((a, b) => a + b, 0) / entry.results.length || 0;
 
     div.innerHTML = `
-      <strong>Test at ${entry.timestamp}</strong><br>
+      <strong>${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)} Test at ${entry.timestamp}</strong><br>
       Initial: ${entry.initialColor}, Stimulus: ${entry.stimulusColor}<br>
       Trials: ${entry.trials}, Delays: ${entry.minDelay}s–${entry.maxDelay}s<br>
       Results (ms): ${entry.results.map(r => r.toFixed(1)).join(', ')}<br>
@@ -244,7 +227,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     hr.style.border = '1px solid #555';
     hr.style.margin = '8px 0';
 
-    historyContent.insertBefore(hr, historyContent.firstChild);
-    historyContent.insertBefore(div, hr);
+    historyContent.insertBefore(div, historyContent.firstChild);
+    historyContent.insertBefore(hr, div);
   }
 }

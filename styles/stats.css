@@ -1,0 +1,168 @@
+/* src/styles/stats.css */
+
+/* Main container – full height, flex like freeplayLayout */
+#statsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+/* Fake a "main panel" feel – centered content with same look as #mainPanel */
+#statsContentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-border);
+  border-radius: 2px;
+  padding: 30px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  gap: 30px;
+}
+
+/* Title like other h3 */
+#statsContainer h2 {
+  margin: 0 0 20px 0;
+  font-size: var(--font-size-title);
+  text-align: center;
+  color: var(--text-color);
+}
+
+/* Summary text */
+#statsSummary {
+  text-align: center;
+  color: var(--text-color);
+  font-size: 1.4em;
+  opacity: 0.9;
+}
+
+.overall-average {
+  margin-top: 10px;
+  font-size: 1.6em;
+  color: #a0ffa0;
+  font-weight: bold;
+}
+
+/* Button container – same as #mainPanel #buttonContainer */
+#buttonContainer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons – EXACT same as #mainPanel button */
+#buttonContainer button {
+  font-size: 2vw;
+  padding: 1.5vh 2vw;
+  border: 2px solid var(--primary-border);
+  cursor: pointer;
+  border-radius: 2px;
+  background: var(--primary-bg);
+  color: var(--text-color);
+  min-width: 220px;
+}
+
+#buttonContainer button:hover {
+  background: var(--hover-bg);
+}
+
+/* History entries – card style like panels */
+.stats-entry {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--primary-border);
+  border-radius: 2px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--primary-border);
+}
+
+.test-type {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.timestamp {
+  color: #aaa;
+  font-size: 1em;
+}
+
+.entry-info {
+  margin: 16px 0;
+  color: var(--text-color);
+  font-size: 1.1em;
+}
+
+.results-section strong {
+  display: block;
+  margin: 16px 0 8px 0;
+  color: var(--text-color);
+}
+
+.results-list {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 2px;
+  color: #ddd;
+  word-break: break-all;
+}
+
+.average {
+  text-align: center;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #a0ffa0;
+  margin-top: 20px;
+}
+
+/* Empty state */
+#statsEmpty {
+  text-align: center;
+  color: #ccc;
+  font-size: 1.4em;
+  margin-top: 100px;
+}
+
+/* Reuse your custom scrollbars */
+#statsContentWrapper::-webkit-scrollbar {
+  width: 10px;
+}
+
+#statsContentWrapper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+#statsContentWrapper::-webkit-scrollbar-thumb {
+  background: var(--primary-border);
+  border-radius: 10px;
+}
+
+#statsContentWrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--hover-border);
+}
+
+/* Firefox */
+#statsContentWrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-border) rgba(0, 0, 0, 0.3);
+}
