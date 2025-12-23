@@ -2,7 +2,7 @@
 
 interface HistoryEntry {
   timestamp: string;
-  type: 'Tester Visual';
+  type: 'Session Visual';
   initialColor: string;
   stimulusColor: string;
   trials: number;
@@ -129,7 +129,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
 
       const entry: HistoryEntry = {
         timestamp: new Date().toLocaleString(),
-        type: 'Tester Visual',
+        type: 'Session Visual',
         initialColor: 'white',
         stimulusColor: currentColor,
         trials: trialsPerColor,
@@ -229,7 +229,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     const avg = entry.results.reduce((a, b) => a + b, 0) / entry.results.length || 0;
 
     div.innerHTML = `
-      <strong>Tester Visual – ${entry.stimulusColor.charAt(0).toUpperCase() + entry.stimulusColor.slice(1)}</strong><br>
+      <strong>Session Visual – ${entry.stimulusColor.charAt(0).toUpperCase() + entry.stimulusColor.slice(1)}</strong><br>
       ${entry.timestamp}<br>
       Background: white → Stimulus: ${entry.stimulusColor}<br>
       Trials: 5 | Delays: 1s – 3s<br>

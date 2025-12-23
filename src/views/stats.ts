@@ -2,156 +2,252 @@
 
 interface HistoryEntry {
   timestamp: string;
-  type: string;  // ← Change to just string — accepts anything!
+  type: string;
+  frequency?: number | null;
   initialColor?: string | null;
   stimulusColor?: string | null;
-  trials: number;
-  minDelay: number;
-  maxDelay: number;
-  results: number[];
+  trials?: number;
+  minDelay?: number;
+  maxDelay?: number;
+  results: number[];  // reaction times in ms
 }
 
+// This function builds the “Statistics” screen and sets up the stats view
 export function renderStats(container: HTMLElement, sessionHistory: HistoryEntry[]) {
   container.innerHTML = `
-    <div id="statsContainer">
-      <h2>Reaction Time Stats & History (IN WORK)</h2>
+    <div id="freeplayLayout">
 
-      <div id="statsContentWrapper">
-        <div id="statsSummary">
-          <span class="summary-text" id="summaryText"></span>
-          <div class="overall-average" id="overallAvg"></div>
+      <!-- ===== LEFT COLUMN: Two vertical panels ===== -->
+      <div id="leftColumnContainer">
+        <!-- Top Panel: Filters (takes most of the space) -->
+        <div id="filtersPanel">
+          <h3>Filters (In Work)</h3>
+
+          <div class="stats-section-box">
+            <label class="stats-label">Test Type</label>
+            <select id="filterType">
+              <option value="all">All Tests</option>
+              <option value="Freeplay Visual">Freeplay Visual</option>
+              <option value="Freeplay Audio">Freeplay Audio</option>
+              <option value="Practice Visual">Practice Visual</option>
+            </select>
+
+            <label class="stats-label">Date Range</label>
+            <div class="date-grid">
+              <input type="date" id="filterFrom">
+              <input type="date" id="filterTo">
+            </div>
+
+            <button id="applyFiltersBtn">Apply Filters</button>
+            <button id="resetFiltersBtn">Reset Filters</button>
+          </div>
         </div>
 
-        <div id="buttonContainer">
+        <!-- Bottom Panel: Data Management (smaller, at bottom, no inner box) -->
+        <div id="dataManagementPanel">
+          <h3>Data Management</h3>
+
           <button id="exportCsvBtn">Export to CSV</button>
           <button id="clearHistoryBtn">Clear All History</button>
         </div>
-
-        <div id="statsContent"></div>
       </div>
 
-      <div id="statsEmpty" style="display:none;">
-        <p>
-          No tests completed yet.<br><br>
-          Go to <strong>Freeplay Visual</strong> or <strong>Freeplay Sound</strong> to start testing!
-        </p>
+      <!-- Middle and Right panels -->
+      <div id="mainPanel">
+        <h3>Overall Statistics (In Work)</h3>
+        <div id="statsSummary"></div>
+      </div>
+
+      <div id="historyPanel">
+        <h3>Session History</h3>
+        <div id="historyContent"></div>
       </div>
     </div>
   `;
 
-  // Load CSS (just like your other files!)
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'styles/stats.css';
-  document.head.appendChild(link);
-
-  // Call setup function for all logic
-  setupStats(container, sessionHistory);
-}
-
-function setupStats(container: HTMLElement, sessionHistory: HistoryEntry[]) {
-  const summaryText = document.getElementById('summaryText')!;
-  const overallAvgEl = document.getElementById('overallAvg')!;
-  const statsContent = document.getElementById('statsContent')!;
-  const statsEmpty = document.getElementById('statsEmpty')!;
-  const exportBtn = document.getElementById('exportCsvBtn')!;
-  const clearBtn = document.getElementById('clearHistoryBtn')!;
-
-  // === EMPTY STATE ===
-  if (sessionHistory.length === 0) {
-    statsEmpty.style.display = 'block';
-    statsContent.innerHTML = '';
-    summaryText.textContent = '';
-    overallAvgEl.textContent = '';
-    return;
+  // Load stats-specific CSS (prevent duplicates)
+  if (!document.querySelector('link[href="styles/stats.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'styles/stats.css';
+    document.head.appendChild(link);
   }
 
-  // Hide empty message
-  statsEmpty.style.display = 'none';
+  setupStats(sessionHistory);
+}
 
-  // === CALCULATE AND DISPLAY SUMMARY ===
-  const sortedHistory = [...sessionHistory].reverse();
-  const allResults = sortedHistory.flatMap(e => e.results);
-  const overallAvg = allResults.length > 0
-    ? (allResults.reduce((a, b) => a + b, 0) / allResults.length).toFixed(1)
-    : '0.0';
 
-  summaryText.textContent = `${sortedHistory.length} test${sortedHistory.length === 1 ? '' : 's'} completed • ${allResults.length} total trials`;
-  overallAvgEl.innerHTML = `Overall average: <strong>${overallAvg} ms</strong>`;
+function setupStats(originalHistory: HistoryEntry[]) {
+  const statsSummary = document.getElementById('statsSummary')!;
+  const historyContent = document.getElementById('historyContent')!;
+  const exportBtn = document.getElementById('exportCsvBtn')!;
+  const clearBtn = document.getElementById('clearHistoryBtn')!;
+  const filterType = document.getElementById('filterType') as HTMLSelectElement;
+  const filterFrom = document.getElementById('filterFrom') as HTMLInputElement;
+  const filterTo = document.getElementById('filterTo') as HTMLInputElement;
+  const applyBtn = document.getElementById('applyFiltersBtn')!;
+  const resetBtn = document.getElementById('resetFiltersBtn')!;
 
-  // === BUILD HISTORY ENTRIES ===
-  const historyHTML = sortedHistory.map(entry => {
-    const avg = entry.results.length > 0
-      ? (entry.results.reduce((a, b) => a + b, 0) / entry.results.length).toFixed(1)
+  const updateDisplay = () => {
+    let filtered = [...originalHistory];
+
+    // Filter by type
+    if (filterType.value !== 'all') {
+      filtered = filtered.filter(e => e.type === filterType.value);
+    }
+
+    // Filter by date range
+    if (filterFrom.value) {
+      const fromDate = new Date(filterFrom.value);
+      filtered = filtered.filter(e => new Date(e.timestamp) >= fromDate);
+    }
+    if (filterTo.value) {
+      const toDate = new Date(filterTo.value);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(e => new Date(e.timestamp) <= toDate);
+    }
+
+    // Sort newest first
+    const sorted = [...filtered].reverse();
+
+    // Empty state
+    if (sorted.length === 0) {
+      statsSummary.innerHTML = '<p style="text-align: center; opacity: 0.7;">No sessions match the current filters.</p>';
+      historyContent.innerHTML = '<p style="text-align: center; opacity: 0.7;">No history to display</p>';
+      return;
+    }
+
+    // Overall stats for filtered data
+    const allResults = sorted.flatMap(e => e.results);
+    const totalTrials = allResults.length;
+    const overallAvg = totalTrials > 0
+      ? (allResults.reduce((a, b) => a + b, 0) / totalTrials).toFixed(1)
       : '0.0';
-    const resultsList = entry.results.map(r => r.toFixed(1)).join(', ');
+    const best = totalTrials > 0 ? Math.min(...allResults).toFixed(1) : 'N/A';
+    const worst = totalTrials > 0 ? Math.max(...allResults).toFixed(1) : 'N/A';
 
-    let testType = entry.type || 'Test';
-
-    // Automatically format any string nicely (handles 'Freeplay Visual', 'Tester Visual', 'Freeplay Sound', etc.)
-    testType = testType
-      .replace(/([A-Z])/g, ' $1')                    // Add space before capital letters
-      .replace(/_/g, ' ')                           // Replace underscores with spaces
-      .trim()
-      .replace(/\w\S*/g, (txt) =>                  // Capitalize each word
-        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-      );
-
-    const visualDetails = entry.initialColor && entry.stimulusColor
-      ? `<br>Initial: <span style="color:${entry.initialColor};">■ ${entry.initialColor}</span> → 
-         Stimulus: <span style="color:${entry.stimulusColor};">■ ${entry.stimulusColor}</span>`
-      : '';
-
-    return `
-      <div class="stats-entry">
-        <div class="entry-header">
-          <strong class="test-type">${testType} Test</strong>
-          <span class="timestamp">${entry.timestamp}</span>
+    statsSummary.innerHTML = `
+      <div style="text-align: center; padding: 20px;">
+        <p style="font-size: 1.1em; margin-bottom: 20px;">
+          <strong>${sorted.length}</strong> session${sorted.length === 1 ? '' : 's'} • 
+          <strong>${totalTrials}</strong> trial${totalTrials === 1 ? '' : 's'}
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+          <div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Average</div>
+            <div style="font-size: 2.2em; font-weight: bold; color: #4ade80;">${overallAvg} ms</div>
+          </div>
+          <div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Best</div>
+            <div style="font-size: 1.8em; font-weight: bold; color: #22c55e;">${best} ms</div>
+          </div>
+          <div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Worst</div>
+            <div style="font-size: 1.8em; font-weight: bold; color: #ef4444;">${worst} ms</div>
+          </div>
         </div>
-        <div class="entry-info">
-          Trials: <strong>${entry.trials}</strong> | Delays: ${entry.minDelay}s–${entry.maxDelay}s${visualDetails}
-        </div>
-        <div class="results-section">
-          <strong>Reaction times (ms):</strong>
-          <div class="results-list">${resultsList}</div>
-        </div>
-        <div class="average">Average: <strong>${avg} ms</strong></div>
       </div>
     `;
-  }).join('');
 
-  statsContent.innerHTML = historyHTML;
+    // Render filtered history (newest first)
+    historyContent.innerHTML = sorted.map(entry => renderHistoryEntry(entry)).join('');
+  };
 
-  // === EXPORT TO CSV ===
+  // Initial render
+  updateDisplay();
+
+  // Filter controls
+  applyBtn.onclick = updateDisplay;
+  resetBtn.onclick = () => {
+    filterType.value = 'all';
+    filterFrom.value = '';
+    filterTo.value = '';
+    updateDisplay();
+  };
+
+  // Export (exports ALL data, not just filtered — change if you want filtered only)
   exportBtn.onclick = () => {
-    let csv = "type,date,time,initial_color,stimulus_color,trials,min_delay,max_delay,results_ms,average_ms\n";
+    let csv = "Type,Date & Time,Frequency (Hz),Initial Color,Stimulus Color,Trials,Min Delay (s),Max Delay (s),Results (ms),Average (ms)\n";
 
-    sessionHistory.forEach(entry => {
+    originalHistory.forEach(entry => {
       const resultsStr = entry.results.map(r => r.toFixed(1)).join("|");
       const avg = entry.results.length > 0
         ? (entry.results.reduce((a, b) => a + b, 0) / entry.results.length).toFixed(1)
-        : '0.0';
-      const initColor = entry.initialColor || "";
-      const stimColor = entry.stimulusColor || "";
+        : '0';
 
-      csv += `${entry.type},${entry.timestamp},"${initColor}","${stimColor}",${entry.trials},${entry.minDelay},${entry.maxDelay},${resultsStr},${avg}\n`;
+      csv += [
+        `"${entry.type}"`,
+        `"${entry.timestamp}"`,
+        entry.frequency ?? '',
+        entry.initialColor ?? '',
+        entry.stimulusColor ?? '',
+        entry.trials ?? '',
+        entry.minDelay ?? '',
+        entry.maxDelay ?? '',
+        `"${resultsStr}"`,
+        avg
+      ].join(',') + '\n';
     });
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reaction_time_stats_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `reaction-test-stats_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  // === CLEAR HISTORY ===
+  // Clear all history
   clearBtn.onclick = () => {
-    if (confirm('⚠️ Delete ALL saved reaction time history?\n\nThis cannot be undone.')) {
+    if (confirm('This will permanently delete ALL your reaction time history.\n\nAre you sure?')) {
       localStorage.removeItem('reactionTestHistory');
-      sessionHistory.length = 0;
-      renderStats(container, sessionHistory); // Re-render clean
+      location.reload(); // Simple full refresh
     }
   };
+}
+
+// Function to add each history entry to the stats view
+function renderHistoryEntry(entry: HistoryEntry): string {
+  const avg = entry.results.length > 0
+    ? (entry.results.reduce((a, b) => a + b, 0) / entry.results.length).toFixed(1)
+    : '0.0';
+
+  const resultsList = entry.results.map(r => r.toFixed(1)).join(', ');
+
+  // Build each line separately — only add if data exists
+  let details = '';
+
+  if (entry.initialColor !== undefined || entry.stimulusColor !== undefined) {
+    const init = entry.initialColor ?? '';
+    const stim = entry.stimulusColor ?? '';
+    details += `Initial: ${init}, Stimulus: ${stim}<br>`;
+  }
+
+  if (entry.frequency !== undefined && entry.frequency !== null) {
+    details += `Frequency: ${entry.frequency} Hz<br>`;
+  }
+
+  if (entry.trials !== undefined) {
+    const delayLine = (entry.minDelay !== undefined && entry.maxDelay !== undefined)
+      ? ` | Delays: ${entry.minDelay}s – ${entry.maxDelay}s`
+      : '';
+    details += `Trials: ${entry.trials}${delayLine}<br>`;
+  }
+
+  // If none of the above, add a blank line for spacing
+  if (!details) {
+    details = '<br>';
+  }
+
+  return `
+    <div style="margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;">
+      <strong>${entry.type}</strong><br>
+      ${entry.timestamp}<br>
+      ${details}
+      Results (ms): ${resultsList}<br>
+      <strong>Average: ${avg} ms</strong>
+    </div>
+    <hr style="border:none;border-top:1px solid #444;margin:8px 0;">
+  `.trim();
 }
