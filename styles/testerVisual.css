@@ -115,6 +115,24 @@
   margin: 0;
 }
 
+/* Make the title sticky inside the history panel */
+#historyPanel {
+  position: relative; /* Required for sticky to work inside this container */
+  padding-top: 0;
+  /* your existing rules remain */
+}
+
+/* The sticky title */
+#historyPanel h3 {
+  position: sticky;
+  top: 0;                    /* Sticks to the top of the panel */
+  background: var(--primary-bg); /* Important: cover the content scrolling underneath */
+  margin: 0 0 16px 0 !important; /* Override any bottom margin if needed */
+  padding: 20px 20px 10px 20px;  /* Full top padding + horizontal + slightly more bottom */
+  z-index: 10;               /* Ensure it stays on top of scrolling content */
+}
+
+
 /* ===== CUSTOM SCROLLBARS – WebKit (Chrome, Edge, Safari) ===== */
 #settingsPanel::-webkit-scrollbar,
 #mainPanel::-webkit-scrollbar,
