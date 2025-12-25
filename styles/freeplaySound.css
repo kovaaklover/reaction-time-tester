@@ -56,8 +56,6 @@
   font-size: var(--font-size-button);
   margin-bottom: 20px;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
   outline: none;
 }
 

@@ -4,11 +4,11 @@
   width: 100%;
   height: 100%;
   gap: 20px;
-  padding: 20px 10px;
+  padding: 20px 10px;              /* matches Freeplay */
   box-sizing: border-box;
 }
 
-/* ===== SHARED PANEL STYLING ===== */
+/* ===== SHARED PANEL STYLING — exactly like Freeplay ===== */
 #mainPanel,
 #historyPanel,
 #filtersPanel,
@@ -18,12 +18,12 @@
   background: var(--primary-bg);
   border: 1px solid var(--primary-border);
   border-radius: 2px;
-  padding: 20px;
+  padding: 20px;                   /* full 20px all sides — perfect match */
   box-sizing: border-box;
   overflow-y: auto;
 }
 
-/* ===== LEFT COLUMN: Two split panels ===== */
+/* ===== LEFT COLUMN: Split panels ===== */
 #leftColumnContainer {
   display: flex;
   flex-direction: column;
@@ -32,15 +32,14 @@
   height: 100%;
 }
 
-/* Filters takes most space, Data Management smaller and sits at bottom */
 #filtersPanel {
-  flex: 1;           /* Grows to fill the rest */
-  min-height: 0;     /* Allows it to shrink if needed */
+  flex: 1;
+  min-height: 0;
 }
 
 #dataManagementPanel {
-  flex: 0 0 200px;   /* Fixed height: change 160px to whatever you like */
-  min-height: 200px; /* Ensures it doesn't shrink below this */
+  flex: 0 0 200px;
+  min-height: 200px;
 }
 
 /* ===== PANEL SIZES ===== */
@@ -52,10 +51,10 @@
   flex: 1;
   align-items: center;
   justify-content: flex-start;
-  gap: 20px;
+  gap: 0px;     /* space between items */
 }
 
-/* ===== PANEL TITLES ===== */
+/* ===== PANEL TITLES — exactly like Freeplay ===== */
 #mainPanel h3,
 #historyPanel h3,
 #filtersPanel h3,
@@ -81,112 +80,86 @@
   z-index: 10;
 }
 
-/* ===== INNER SECTION BOX IN FILTERS PANEL ===== */
-.stats-section-box {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid var(--primary-border);
-}
-
-/* Labels inside the filters box */
+/* ===== FILTERS PANEL: Controls ===== */
 .stats-label {
   display: block;
-  font-size: 0.95em;
+  font-size: var(--font-size-button);
   margin: 16px 0 8px 0;
   color: var(--text-color);
   opacity: 0.9;
 }
 
-/* Date input grid */
 .date-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-/* Buttons inside filters box */
-.stats-section-box button {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-  background: var(--primary-bg);
-  color: var(--text-color);
-  border: 1px solid var(--primary-border);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: var(--font-size-button);
-  box-sizing: border-box;
-}
-
-.stats-section-box button:hover {
-  background: var(--hover-bg);
-  border-color: var(--hover-border);
-}
-
-/* Apply Filters button highlight */
-#applyFiltersBtn {
-  background: var(--hover-bg);
-  border-color: var(--hover-border);
-}
-
-/* Reset Filters subtle */
-#resetFiltersBtn {
-  background: transparent;
-  border: none;
-  color: var(--text-color);
-  opacity: 0.7;
-  font-size: 0.9em;
-  padding: 8px;
-  margin-top: 8px;
-}
-
-#resetFiltersBtn:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Select and date inputs */
-#filterType,
-#filterFrom,
-#filterTo {
+#filtersPanel select,
+#filtersPanel input[type="date"] {
   width: 100%;
   padding: 10px;
   background: var(--primary-bg);
   color: var(--text-color);
   border: 1px solid var(--primary-border);
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: var(--font-size-button);
   box-sizing: border-box;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
 }
 
-#filterType:focus,
-#filterFrom:focus,
-#filterTo:focus {
+#filtersPanel select:hover,
+#filtersPanel input[type="date"]:hover {
+  background: var(--hover-bg);
+}
+
+#filtersPanel select:focus,
+#filtersPanel input[type="date"]:focus {
   border-color: var(--hover-border);
-  box-shadow: 0 0 0 1px var(--hover-border);
   outline: none;
 }
 
-/* ===== DATA MANAGEMENT PANEL BUTTONS — exact match to top bar navigation ===== */
-#dataManagementPanel button {
-  color: var(--text-color);
-  background: var(--primary-bg);
-  border: 1px solid var(--primary-border);
+#filtersPanel button {
+  width: 100%;
   padding: 12px 20px;
-  cursor: pointer;
+  margin-bottom: 12px;
+  background: var(--primary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--primary-border);
   border-radius: 2px;
   font-size: var(--font-size-button);
   font-weight: 500;
+  cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 140px;
-  width: 100%;
   box-sizing: border-box;
-  margin-bottom: 12px;
 }
 
-/* Optional: make the last button have no bottom margin */
+#filtersPanel button:hover {
+  background: var(--hover-bg);
+}
+
+/* Checkbox label cursor */
+#removeOutliers + label {
+  cursor: pointer;
+}
+
+/* ===== DATA MANAGEMENT PANEL: Buttons ===== */
+#dataManagementPanel button {
+  width: 100%;
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  background: var(--primary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--primary-border);
+  border-radius: 2px;
+  font-size: var(--font-size-button);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
 #dataManagementPanel button:last-child {
   margin-bottom: 0;
 }
@@ -195,24 +168,43 @@
   background: var(--hover-bg);
 }
 
-#dataManagementPanel button.active {
-  background: var(--active-bg);
-}
-
-/* Ensure Clear button has no special/red color */
-#clearHistoryBtn,
-#exportCsvBtn {
-  background: var(--primary-bg);
-  color: var(--text-color);
+/* ===== STATS BOX (Average/Best/Worst) ===== */
+.stats-box {
+  width: 100%;
+  display: flex;
+  gap: 40px;
   border: 1px solid var(--primary-border);
+  border-radius: 2px;
+  padding: 12px;
+  margin: 20px 0;
+  background: var(--primary-bg);
+  box-sizing: border-box;
+  justify-content: space-around;
+  align-items: flex-start;
 }
 
-#clearHistoryBtn:hover,
-#exportCsvBtn:hover {
-  background: var(--hover-bg);
+.stats-item {
+  flex: 1;
+  min-width: 120px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 5px;
+  padding: 0px 12px 12px 12px;   /* ← Top reduced from 10px to 6px */
+  text-align: center;
 }
 
-/* ===== MAIN PANEL STYLING (kept for compatibility with other tabs) ===== */
+/* ===== CHART STYLING ===== */
+#reactionChart {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 4px auto 6px auto; /* controlled spacing */
+  display: block;
+  border: 1px solid var(--primary-border);
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+/* ===== MAIN PANEL COMPATIBILITY (Freeplay modes) ===== */
 #mainPanel #targetColorText {
   font-weight: bold;
 }
@@ -228,10 +220,10 @@
   font-size: 2vw;
   padding: 1.5vh 2vw;
   border: 2px solid var(--primary-border);
-  cursor: pointer;
   border-radius: 2px;
   background: var(--primary-bg);
   color: var(--text-color);
+  cursor: pointer;
 }
 
 #mainPanel button:hover {
@@ -286,4 +278,20 @@
 #filtersPanel::-webkit-scrollbar-thumb:hover,
 #dataManagementPanel::-webkit-scrollbar-thumb:hover {
   background: var(--hover-border);
+}
+
+
+.secondary-charts {
+  display: flex;
+  gap: 20px;   /* spacing between charts */
+  margin-top: 20px;
+  width: 100%;
+  height: 400px; /* optional fixed height */
+}
+
+.secondary-charts canvas {
+  flex: 1;
+  border: 1px solid var(--primary-border);
+  border-radius: 2px;
+  background: var(--primary-bg);
 }

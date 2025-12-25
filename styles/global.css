@@ -91,7 +91,7 @@ body {
   background: var(--hover-bg);
 }
 #topBar button.active {
-  background: var(--active-bg);
+  background: #6CA2F4;
 }
 
 #viewContainer {

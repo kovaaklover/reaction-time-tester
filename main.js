@@ -1,10 +1,13 @@
+const path = require("path"); // <-- Needed to resolve the icon path
 const { app, BrowserWindow } = require("electron");
+
 
 let mainWindow;
 app.commandLine.appendSwitch('disable-gpu'); // Forces CPU rendering for potentially lower latency in simple apps
 
 app.on("ready", () => {
   mainWindow = new BrowserWindow({
+    icon: path.join(__dirname, "build", "icon.ico"), // ← correct usage
     frame: true,            // Keeps title bar & close/minimize buttons
     maximizable: true,
     resizable: true,        // Optional: Set to false if you don’t want resizing

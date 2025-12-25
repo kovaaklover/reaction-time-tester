@@ -1,6 +1,6 @@
 {
   "name": "reaction-time-tester",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "A simple reaction time test app",
   "main": "main.js",
   "scripts": {
@@ -9,6 +9,7 @@
     "dist": "npm run build && electron-builder"
   },
   "devDependencies": {
+    "@types/chart.js": "^2.9.41",
     "electron": "^30.0.0",
     "electron-builder": "^26.0.12",
     "typescript": "^5.3.3"
@@ -16,6 +17,7 @@
   "build": {
     "appId": "com.yourname.reactiontimetester",
     "productName": "Reaction Time Tester",
+    "icon": "build/icon.ico",
     "files": [
       "dist/**/*",
       "index.html",
@@ -30,6 +32,11 @@
       "target": [
         "nsis"
       ]
+    },
+    "nsis": {
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Reaction Time Tester"
     }
   }
 }

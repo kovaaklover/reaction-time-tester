@@ -2,7 +2,7 @@
 
 interface HistoryEntry {
   timestamp: string;
-  type: 'Freeplay Sound';
+  type: 'Freeplay Audio';
   frequency: number;
   trials: number;
   minDelay: number;
@@ -157,7 +157,7 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
     if (currentTrial >= totalTrials) {
       const entry: HistoryEntry = {
         timestamp: new Date().toLocaleString(),
-        type: 'Freeplay Sound',
+        type: 'Freeplay Audio',
         frequency: parseInt(freqSelect.value),
         trials: totalTrials,
         minDelay: parseFloat(minDelaySelect.value),
