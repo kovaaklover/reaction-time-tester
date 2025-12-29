@@ -68,6 +68,12 @@
   background: var(--hover-bg);
 }
 
+#notesInput:focus {
+  outline: none;                    /* Removes the orange/blue glow */
+  border-color: var(--hover-border); /* Optional: match your hover style */
+  box-shadow: 0 0 0 1px var(--hover-border); /* Optional: subtle custom glow */
+}
+
 #mainPanel #targetColorText {
   font-weight: bold;
 }

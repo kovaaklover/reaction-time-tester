@@ -8,6 +8,7 @@ interface HistoryEntry {
   minDelay: number;
   maxDelay: number;
   results: number[];
+  notes?: string;
 }
 
 // This function builds the “Freeplay – Visual” screen and sets up the test
@@ -48,6 +49,9 @@ export function renderFreeplaySound(container: HTMLElement, sessionHistory: Hist
           <option value="4">4</option>
           <option value="5">5</option>
         </select>
+
+        <label>Notes (optional)</label>
+        <input type="text" id="notesInput" placeholder="Add any notes for this session..." style="width: 100%; padding: 10px; margin-bottom: 20px; background: var(--primary-bg); color: var(--text-color); border: 1px solid var(--primary-border); border-radius: 2px; font-size: var(--font-size-button); box-sizing: border-box;">
       </div>
 
       <div id="mainPanel">
@@ -154,6 +158,9 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
 
     const totalTrials = parseInt(trialsSelect.value);
 
+    const notesInput = document.getElementById('notesInput') as HTMLInputElement;
+    const notes = notesInput.value.trim();
+
     if (currentTrial >= totalTrials) {
       const entry: HistoryEntry = {
         timestamp: new Date().toLocaleString(),
@@ -162,7 +169,8 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
         trials: totalTrials,
         minDelay: parseFloat(minDelaySelect.value),
         maxDelay: parseFloat(maxDelaySelect.value),
-        results: [...results]
+        results: [...results],
+        notes: notes || undefined  // only save if not empty
       };
       sessionHistory.push(entry);
       localStorage.setItem('reactionTestHistory', JSON.stringify(sessionHistory));

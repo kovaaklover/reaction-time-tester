@@ -9,6 +9,7 @@ interface HistoryEntry {
   minDelay: number;
   maxDelay: number;
   results: number[];
+  notes?: string;
 }
 
 export function renderTesterVisual(container: HTMLElement, sessionHistory: HistoryEntry[]) {
@@ -23,6 +24,9 @@ export function renderTesterVisual(container: HTMLElement, sessionHistory: Histo
         <label>Min Delay: 1 second</label>
         <label>Max Delay: 3 seconds</label>
         <label>Color Order: Random each run</label>
+
+        <label>Notes (optional)</label>
+        <input type="text" id="notesInput" placeholder="Add any notes for this session..." style="width: 100%; padding: 10px; margin-bottom: 20px; background: var(--primary-bg); color: var(--text-color); border: 1px solid var(--primary-border); border-radius: 2px; font-size: var(--font-size-button); box-sizing: border-box;">
       </div>
 
       <div id="mainPanel">
@@ -127,6 +131,9 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
       // Save results for this color
       const currentColor = colorQueue[currentColorIndex];
 
+      const notesInput = document.getElementById('notesInput') as HTMLInputElement;
+      const notes = notesInput.value.trim();
+
       const entry: HistoryEntry = {
         timestamp: new Date().toLocaleString(),
         type: 'Session Visual',
@@ -135,7 +142,8 @@ function setupReactionTest(sessionHistory: HistoryEntry[]) {
         trials: trialsPerColor,
         minDelay: minDelayS,
         maxDelay: maxDelayS,
-        results: [...resultsForCurrentColor]
+        results: [...resultsForCurrentColor],
+        notes: notes || undefined  // only save if not empty
       };
 
       sessionHistory.push(entry);

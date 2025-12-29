@@ -18,6 +18,7 @@ interface HistoryEntry {
   minDelay?: number;
   maxDelay?: number;
   results: number[];  // reaction times in ms
+  notes?: string | null;
 }
 
 let reactionChart: any = null; // Global to hold Chart.js instance
@@ -595,7 +596,7 @@ function setupStats(originalHistory: HistoryEntry[]) {
 
   // Export (exports ALL data, not just filtered — change if you want filtered only)
   exportBtn.onclick = () => {
-    let csv = "Type,Date & Time,Frequency (Hz),Initial Color,Stimulus Color,Trials,Min Delay (s),Max Delay (s),Results (ms),Average (ms)\n";
+    let csv = "Type,Date & Time,Frequency (Hz),Initial Color,Stimulus Color,Trials,Min Delay (s),Max Delay (s),Results (ms),Average (ms),Notes\n";
 
     originalHistory.forEach(entry => {
       const resultsStr = entry.results.map(r => r.toFixed(1)).join("|");
@@ -613,7 +614,8 @@ function setupStats(originalHistory: HistoryEntry[]) {
         entry.minDelay ?? '',
         entry.maxDelay ?? '',
         `"${resultsStr}"`,
-        avg
+        avg,
+        entry.notes ?? ''
       ].join(',') + '\n';
     });
 
@@ -661,6 +663,11 @@ function renderHistoryEntry(entry: HistoryEntry): string {
       ? ` | Delays: ${entry.minDelay}s – ${entry.maxDelay}s`
       : '';
     details += `Trials: ${entry.trials}${delayLine}<br>`;
+  }
+
+  // ADD NOTES HERE — only if they exist
+  if (entry.notes) {
+    details += `Notes: ${entry.notes}<br>`;
   }
 
   // If none of the above, add a blank line for spacing
