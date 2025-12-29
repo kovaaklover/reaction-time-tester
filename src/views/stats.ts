@@ -392,6 +392,8 @@ function setupStats(originalHistory: HistoryEntry[]) {
               },
               stepSize: 1,                    // ← Minimum step = 1 (forces integers)
               autoSkip: true,                 // ← Allows larger steps when crowded
+              maxRotation: 0,     // ← No rotation allowed
+              minRotation: 0      // ← Forces horizontal labels
             },
             grid: { color: '#36373C' }
           },
@@ -515,7 +517,7 @@ function setupStats(originalHistory: HistoryEntry[]) {
           datasets: [
             {
               label: '25% Quartile',
-              data: hourLower25,
+              data: hourUpper75,
               borderColor: '#f87171',  // red-ish
               backgroundColor: '#f87171',
               tension: 0.25,
@@ -531,7 +533,7 @@ function setupStats(originalHistory: HistoryEntry[]) {
             },
             {
               label: '75% Quartile',
-              data: hourUpper75,
+              data: hourLower25,
               borderColor: '#60a5fa',  // blue
               backgroundColor: '#60a5fa',
               tension: 0.25,
@@ -556,7 +558,7 @@ function setupStats(originalHistory: HistoryEntry[]) {
           },
           scales: {
             x: { ticks: { color: 'white' }, grid: { color: '#36373C' }, font: { size: 14 }   },
-            y: { ticks: { color: 'white' } , grid: { color: '#36373C' }, font: { size: 14 }  }
+            y: { ticks: { color: 'white' } , grid: { color: '#36373C' }, font: { size: 14 }, maxRotation: 0, minRotation: 0 }
           }
         }
       }
